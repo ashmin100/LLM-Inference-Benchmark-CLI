@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔬 llm-bench
+# 🔬 LLM Inference Benchmark CLI
 
 **Local LLM inference benchmark for Ollama — Dense vs MoE, Thinking vs Standard**
 
@@ -103,7 +103,7 @@ Each configuration runs 3 shots per prompt for statistical stability (p95/p99 re
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/ashmin100/llm-bench
+git clone https://github.com/ashmin100/LLM-Inference-Benchmark-CLI
 cd llm-bench
 pip install -e .
 
