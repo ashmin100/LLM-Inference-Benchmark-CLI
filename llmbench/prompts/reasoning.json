@@ -1,0 +1,27 @@
+[
+  {
+    "category": "reasoning",
+    "length": "short",
+    "text": "If all Bloops are Razzles and all Razzles are Lazzles, are all Bloops definitely Lazzles? Answer yes or no and explain in one sentence."
+  },
+  {
+    "category": "reasoning",
+    "length": "short",
+    "text": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Show your reasoning."
+  },
+  {
+    "category": "reasoning",
+    "length": "medium",
+    "text": "Five people — Alice, Bob, Carol, Dan, and Eve — are standing in a line. Alice is not at either end. Bob is somewhere to the left of Carol. Dan is immediately to the right of Eve. Eve is not next to Alice. Who can be standing at the leftmost position? List all valid answers with reasoning."
+  },
+  {
+    "category": "reasoning",
+    "length": "medium",
+    "text": "A train leaves City A at 9:00 AM traveling at 80 km/h toward City B. Another train leaves City B at 10:30 AM traveling at 120 km/h toward City A. The cities are 420 km apart. At what time do the trains meet, and how far from City A does the meeting occur? Show all steps."
+  },
+  {
+    "category": "reasoning",
+    "length": "long",
+    "text": "You are given the following premises:\n1. All engineers who work on inference systems understand latency.\n2. Some people who understand latency also understand throughput.\n3. No one who misunderstands throughput can optimize production systems.\n4. Alice is an engineer working on an inference system.\n5. Bob understands throughput but does not work on any system.\n6. Carol neither understands latency nor throughput.\n\nFor each of the following conclusions, determine if it is definitely true, definitely false, or indeterminate based solely on the premises. Justify each answer:\na) Alice understands latency.\nb) Alice can optimize production systems.\nc) Bob can optimize production systems.\nd) Carol can optimize production systems.\ne) There exists at least one person who understands both latency and throughput."
+  }
+]

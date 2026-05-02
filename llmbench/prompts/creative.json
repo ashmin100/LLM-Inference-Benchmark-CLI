@@ -1,0 +1,27 @@
+[
+  {
+    "category": "creative",
+    "length": "short",
+    "text": "Write a haiku about the moment a language model generates its first token."
+  },
+  {
+    "category": "creative",
+    "length": "short",
+    "text": "Describe latency in one vivid metaphor, as if explaining it to someone who has never used a computer."
+  },
+  {
+    "category": "creative",
+    "length": "medium",
+    "text": "Write a short dialogue (8–10 lines) between two AI models debating whether speed or quality matters more in real-world inference. Each model should have a distinct personality and make at least one concrete technical argument."
+  },
+  {
+    "category": "creative",
+    "length": "medium",
+    "text": "Write a 3-paragraph product announcement for a fictional LLM inference engine called 'SwiftServe' that has just achieved a 3× speedup over its previous version. The tone should be technical but exciting, aimed at developers. Mention specific metrics like TTFT, throughput, and p99 latency."
+  },
+  {
+    "category": "creative",
+    "length": "long",
+    "text": "Write a short story (350–400 words) told from the perspective of a single inference request traveling through an LLM serving system. The story should personify the request and accurately reflect real technical stages: arriving at the API gateway, entering the request queue, being batched with other requests, going through the prefill phase where the prompt is processed, and then the decode phase where tokens are generated one by one until an EOS token is reached. Make it engaging and technically grounded — a developer reading it should recognize the stages and find it satisfying."
+  }
+]

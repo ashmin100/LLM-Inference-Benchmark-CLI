@@ -1,0 +1,17 @@
+[
+  {
+    "category": "summarization",
+    "length": "short",
+    "text": "Summarize the following in one sentence:\n\nSpeculative decoding is a technique used to speed up autoregressive language model inference. A smaller draft model generates several candidate tokens quickly, and the larger target model then verifies them in parallel. If the draft tokens match what the target model would have produced, they are accepted all at once, effectively generating multiple tokens per forward pass instead of one."
+  },
+  {
+    "category": "summarization",
+    "length": "medium",
+    "text": "Summarize the following passage in 3-4 sentences, focusing on the key technical ideas:\n\nContinuous batching, also known as iteration-level scheduling, is a serving strategy for large language models that significantly improves GPU utilization. In traditional static batching, a server waits until a fixed batch is full before processing, and all sequences in the batch must finish before the next batch begins. This leads to idle compute time when some sequences finish much earlier than others. Continuous batching solves this by inserting new requests into the batch as soon as a slot becomes free, treating each iteration of the decoding loop as a scheduling opportunity rather than waiting for the entire batch to complete. This approach was pioneered in the Orca paper and has since become a foundational technique in production LLM serving systems including vLLM and TGI."
+  },
+  {
+    "category": "summarization",
+    "length": "long",
+    "text": "Read the following technical description and produce a structured summary with three sections: (1) Problem, (2) Solution, (3) Trade-offs.\n\nPagedAttention is a memory management technique for LLM inference introduced with the vLLM serving system. The core problem it addresses is memory fragmentation in the KV cache. During autoregressive decoding, each token's key and value tensors must be stored in memory for the duration of the sequence. Traditional implementations pre-allocate a contiguous block of GPU memory for the maximum possible sequence length, which leads to severe internal and external fragmentation — memory is reserved but unused.\n\nPagedAttention draws inspiration from virtual memory and paging in operating systems. Instead of allocating one large contiguous block per sequence, it divides the KV cache into fixed-size blocks, called pages, which can be stored non-contiguously in GPU memory. A block table maps logical positions in the sequence to physical memory blocks, just as a page table maps virtual addresses to physical addresses in an OS.\n\nThis design enables near-zero memory waste from fragmentation, since blocks are only allocated as needed and can be reclaimed when a sequence finishes. It also enables efficient memory sharing for parallel sampling and beam search, where multiple output sequences share a common prompt prefix — they can point to the same physical blocks rather than duplicating the data.\n\nHowever, PagedAttention introduces overhead from block table lookups during attention computation, requires a custom CUDA kernel to handle non-contiguous memory access, and adds implementation complexity. The block size is also a tunable parameter that creates a trade-off between fragmentation and kernel efficiency."
+  }
+]

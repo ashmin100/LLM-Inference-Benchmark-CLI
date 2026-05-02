@@ -1,0 +1,27 @@
+[
+  {
+    "category": "qa",
+    "length": "short",
+    "text": "What is the difference between TTFT (Time to First Token) and TPOT (Time Per Output Token) in LLM inference?"
+  },
+  {
+    "category": "qa",
+    "length": "short",
+    "text": "What does 'quantization' mean in the context of LLM inference, and what is the main trade-off it introduces?"
+  },
+  {
+    "category": "qa",
+    "length": "medium",
+    "text": "Explain how the attention mechanism in a transformer works during the decoding phase of autoregressive generation. Why does the KV cache exist, and what problem does it solve? Answer in 150–200 words."
+  },
+  {
+    "category": "qa",
+    "length": "medium",
+    "text": "What is Mixture of Experts (MoE) architecture in large language models? How does it differ from a dense transformer, and what are its implications for inference speed and memory usage? Give a concrete example of how a 30B MoE model might behave differently from a 14B dense model during inference."
+  },
+  {
+    "category": "qa",
+    "length": "long",
+    "text": "A developer is building a production chatbot service and needs to choose between the following two deployment strategies:\n\nOption A: A single large dense model (70B parameters, FP16) on 2× A100 GPUs with tensor parallelism.\nOption B: A MoE model (56B total parameters, 14B active per token, FP16) on the same 2× A100 GPUs.\n\nAnswer the following questions in detail:\n1. How does memory usage compare between the two options at inference time?\n2. How would throughput (tokens/sec) likely differ, and why?\n3. What happens to latency under high concurrency (e.g., 100 simultaneous users)?\n4. Which option is better for a latency-sensitive interactive use case vs. a throughput-optimized batch processing use case?\n5. What are two concrete risks of choosing the MoE option in production?\n\nBe specific and use numbers where possible."
+  }
+]

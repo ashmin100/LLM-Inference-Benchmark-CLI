@@ -1,0 +1,27 @@
+[
+  {
+    "category": "coding",
+    "length": "short",
+    "text": "Write a Python function that checks whether a given string is a palindrome. It should be case-insensitive and ignore spaces."
+  },
+  {
+    "category": "coding",
+    "length": "short",
+    "text": "Implement a Python function `flatten(nested)` that takes an arbitrarily nested list and returns a flat list. For example: flatten([1, [2, [3, 4]], 5]) -> [1, 2, 3, 4, 5]."
+  },
+  {
+    "category": "coding",
+    "length": "medium",
+    "text": "Implement a Python class `RateLimiter` that allows at most N calls per second using the token bucket algorithm. It should expose an `acquire()` method that blocks if the limit is exceeded and a `try_acquire()` method that returns False immediately if no token is available. Include a docstring and type hints."
+  },
+  {
+    "category": "coding",
+    "length": "medium",
+    "text": "You have a list of API response times in milliseconds. Write a Python function that computes the following statistics without using any external libraries: mean, median, p95, p99, and standard deviation. The function should handle empty input gracefully and return a dictionary."
+  },
+  {
+    "category": "coding",
+    "length": "long",
+    "text": "Design and implement a Python async streaming client for an OpenAI-compatible LLM API. Requirements:\n1. Use httpx.AsyncClient for HTTP.\n2. Support streaming responses via Server-Sent Events (SSE).\n3. Measure and return time-to-first-token (TTFT) in milliseconds.\n4. Count output tokens from the stream.\n5. Handle errors (timeout, HTTP errors, malformed JSON chunks) with specific exception types.\n6. Include a simple retry mechanism with exponential backoff (max 3 retries).\n\nProvide the full implementation with type hints, docstrings, and a short usage example at the bottom."
+  }
+]
