@@ -51,3 +51,13 @@ class TestLoadPrompts:
     def test_returns_list(self):
         prompts = load_prompts()
         assert isinstance(prompts, list)
+
+    def test_empty_list_returns_empty(self):
+        """load_prompts([]) should return [] not all prompts."""
+        assert load_prompts([]) == []
+
+    def test_all_categories_covered(self):
+        """Default load must include every category in CATEGORIES."""
+        prompts = load_prompts()
+        returned_cats = {p["category"] for p in prompts}
+        assert returned_cats == set(CATEGORIES)

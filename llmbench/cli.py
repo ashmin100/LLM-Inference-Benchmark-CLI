@@ -62,7 +62,7 @@ def compare(
     concurrency: int = typer.Option(
         1,
         "--concurrency",
-        help="Max simultaneous requests to Ollama.",
+        help="Max simultaneous requests to Ollama. Keep at 1 for accurate benchmarking (default).",
         min=1,
     ),
     output: Path = typer.Option(
@@ -98,7 +98,6 @@ def compare(
     # ── Warmup ────────────────────────────────────────────────────────────
     if warmup:
         console.print("[bright_black]  Running warmup...[/bright_black]")
-        warmup_prompts = [{"category": "qa", "length": "short", "text": "Hello.", "text": "Say hi."}]
         asyncio.run(run_benchmark(
             models=model_list,
             prompts=[{"category": "qa", "length": "short", "text": "Say hi."}],
@@ -119,7 +118,7 @@ def compare(
         console.print(
             f"  [bright_black][{completed:>3}/{total}][/bright_black] "
             f"[cyan]{model}[/cyan] [{mode_str}] "
-            f"{prompt_dict['category']}/{prompt_dict['length']}  shot {shot + 1}",
+            f"{prompt_dict['category']}/{prompt_dict['length']}  shot {shot}",
             highlight=False,
         )
 

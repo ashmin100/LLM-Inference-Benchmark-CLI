@@ -99,7 +99,7 @@ async def run_benchmark(
         for model in models
         for thinking in thinking_modes
         for p in prompts
-        for shot in range(shots)
+        for shot in range(1, shots + 1)   # 1-indexed for progress display
     ]
 
     results = await asyncio.gather(*tasks)

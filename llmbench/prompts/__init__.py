@@ -12,7 +12,7 @@ def load_prompts(categories: list[str] | None = None) -> list[dict]:
 
     Returns a list of dicts with keys: category, length, text.
     """
-    selected = categories if categories else CATEGORIES
+    selected = categories if categories is not None else CATEGORIES
     prompts = []
     for cat in selected:
         path = PROMPT_DIR / f"{cat}.json"

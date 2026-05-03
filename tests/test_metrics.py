@@ -114,3 +114,15 @@ class TestAggregate:
         results = [make_result(tps=40.0) for _ in range(5)]
         stats = aggregate(results)
         assert stats.tps_std == pytest.approx(0.0)
+
+    def test_returns_none_for_empty_list(self):
+        """aggregate([]) must not crash and must return None."""
+        assert aggregate([]) is None
+
+    def test_single_valid_result(self):
+        """A single result should work with n_samples=1 and std=0."""
+        stats = aggregate([make_result(tps=55.0, output_tokens=30)])
+        assert stats is not None
+        assert stats.n_samples == 1
+        assert stats.tps_mean == pytest.approx(55.0)
+        assert stats.avg_tokens == pytest.approx(30.0)
