@@ -25,12 +25,10 @@ async def _run_single(
     try:
         kwargs = dict(model=model, prompt=prompt, stream=True)
         # Qwen3 thinking mode: supported in Ollama >= 0.6.5
-        if thinking:
-            kwargs["think"] = True
-        else:
-            kwargs["think"] = False
+        # think=False also passed explicitly to disable reasoning in non-thinking runs
+        kwargs["think"] = thinking
 
-        async for chunk in await client.generate(**kwargs):
+        async for chunk in client.generate(**kwargs):
             if first_token_ns is None and chunk.response:
                 first_token_ns = time.perf_counter_ns()
             if chunk.done:

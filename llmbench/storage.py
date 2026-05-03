@@ -46,6 +46,7 @@ def save(
         "ttft_p50", "ttft_p95", "ttft_p99",
         "tps_mean", "tps_std",
         "latency_p50", "latency_p95", "latency_p99",
+        "avg_tokens",
     ]
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fields)
@@ -65,6 +66,7 @@ def save(
                 "latency_p50": round(s.latency_p50, 1),
                 "latency_p95": round(s.latency_p95, 1),
                 "latency_p99": round(s.latency_p99, 1),
+                "avg_tokens": round(s.avg_tokens, 1),
             })
 
     return json_path, csv_path
