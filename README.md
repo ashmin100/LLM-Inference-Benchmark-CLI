@@ -44,6 +44,28 @@ llm-bench makes this comparison concrete and reproducible, with no API costs and
 
 ---
 
+## How It Works
+
+The benchmark runs in five sequential phases designed to eliminate common sources of measurement error:
+
+```
+① INPUT       Parse CLI args → load prompt suite + model list
+② WARMUP      One silent request per model → loads weights into GPU VRAM
+③ BENCHMARK   Serial loop: model × mode × prompt × shot
+                  measure TTFT (wall-clock) and TPS (hardware eval_duration)
+④ AGGREGATE   Group by (model, mode, category) → compute p50/p95/p99
+⑤ OUTPUT      Terminal table · JSON · CSV · seaborn PNG dashboard
+```
+
+**Measurement accuracy design:**
+
+- **Serial execution** — `Semaphore(concurrency=1)` ensures only one inference runs at a time. Loop order is `model → mode → prompt → shot`, so all shots for model-A finish before model-B starts. Models never compete for GPU resources.
+- **Warmup phase** — A dummy request per model pre-loads weights into VRAM before any timing begins, eliminating cold-start bias from the first inference.
+- **TTFT via `perf_counter_ns`** — Wall-clock nanosecond precision from prompt submission to the first non-empty streaming token. Captures real user-perceived latency including network round-trip to the Ollama process.
+- **TPS via `eval_duration`** — Ollama reports the exact GPU evaluation time internally (`chunk.eval_duration`, in nanoseconds). Using this rather than wall-clock removes OS scheduling noise and reflects true hardware throughput.
+
+---
+
 ## Experiment Design
 
 Tested on **Apple Silicon M4 Pro · 24 GB unified memory** · Ollama local inference (zero API cost)
@@ -56,7 +78,7 @@ Tested on **Apple Silicon M4 Pro · 24 GB unified memory** · Ollama local infer
 | `qwen3:14b` | Dense | 14B | 14B |
 | `qwen3:30b-a3b` | **MoE** | 30B | ~3B |
 
-`qwen3:30b-a3b` is the key subject: despite having 30B total parameters, each forward pass only activates ~3B — making it a direct test of whether MoE efficiency gains hold up locally against a dense model of similar quality.
+`qwen3:30b-a3b` is the key subject: despite having 30B total parameters, each forward pass only activates ~3B — making it a direct test of whether MoE efficiency gains hold up locally against a dense model of similar generation quality.
 
 ### Inference Modes
 
@@ -134,28 +156,23 @@ llm-bench compare --models qwen3:8b,qwen3:14b --mode standard --category reasoni
 # Minimal run — 1 shot, no chart (fast iteration)
 llm-bench compare --models qwen3:8b --shots 1 --no-chart
 
-# Bring your own prompts
-llm-bench compare --models qwen3:14b --prompts ./my_prompts.json
-
 # See what's installed in Ollama
 llm-bench list-models
-
-# Run without installing
-python -m llmbench compare --models qwen3:8b --mode standard
 ```
 
 ### All Options
 
 ```
 Options:
-  --models, -m        Comma-separated Ollama model names           [required]
-  --category, -c      all | reasoning,coding,summarization,creative,qa
-  --mode              standard | thinking | both         [default: both]
-  --shots, -s         Repeats per prompt (min 2 for p99) [default: 3]
-  --concurrency       Max simultaneous requests           [default: 1]
-  --output, -o        Result directory                   [default: results/]
+  --models, -m          Comma-separated Ollama model names           [required]
+  --category, -c        all | reasoning,coding,summarization,creative,qa
+  --mode                standard | thinking | both         [default: both]
+  --shots, -s           Repeats per prompt (min 2 for p99) [default: 3]
+  --concurrency         Max simultaneous requests          [default: 1]
+                        Keep at 1 for accurate benchmarking.
+  --output, -o          Result directory                   [default: results/]
   --warmup/--no-warmup  Warmup request to avoid cold-start bias
-  --no-chart          Skip PNG dashboard generation
+  --no-chart            Skip PNG dashboard generation
 ```
 
 ---
@@ -173,14 +190,14 @@ results/
 
 ### Dashboard
 
-The PNG dashboard contains four panels:
+The PNG dashboard contains four seaborn panels:
 
 | Panel | Chart | Insight |
 |---|---|---|
-| Top-left | TPS mean ± std bar | Which model generates fastest? |
-| Top-right | TTFT p50 bar | Which model responds first? |
-| Bottom-left | Latency violin plot | How consistent is each model? |
-| Bottom-right | Tail latency p99 | Who spikes under pressure? |
+| Top-left | TPS mean grouped bar (model × mode) | Which model generates fastest? |
+| Top-right | TTFT p50 grouped bar (model × mode) | Which model responds first? |
+| Bottom-left | Latency violin plot (split by mode) | How consistent is each model? |
+| Bottom-right | TPS heatmap (model × category) | Where does each model excel? |
 
 ---
 
@@ -192,7 +209,7 @@ llmbench/
 ├── runner.py        # Async benchmark engine (TTFT, TPS measurement)
 ├── metrics.py       # Result types + aggregation (p50/p95/p99)
 ├── reporter.py      # Rich color-coded terminal table
-├── visualizer.py    # Matplotlib 2×2 dark-theme dashboard
+├── visualizer.py    # Seaborn 2×2 dashboard (barplot, violin, heatmap)
 ├── storage.py       # JSON + CSV export
 └── prompts/
     ├── reasoning.json
@@ -219,4 +236,3 @@ llmbench/
 ## License
 
 MIT
-
