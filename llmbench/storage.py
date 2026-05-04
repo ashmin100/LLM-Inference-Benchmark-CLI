@@ -42,7 +42,7 @@ def save(
     # ── CSV (aggregated) ──────────────────────────────────────────────────
     csv_path = output_dir / f"summary_{ts}.csv"
     fields = [
-        "model", "thinking", "category", "n_samples", "error_rate",
+        "model", "thinking", "category", "length", "n_samples", "error_rate",
         "ttft_p50", "ttft_p95", "ttft_p99",
         "tps_mean", "tps_std",
         "latency_p50", "latency_p95", "latency_p99",
@@ -56,6 +56,7 @@ def save(
                 "model": s.model,
                 "thinking": s.thinking,
                 "category": s.category,
+                "length": s.length,
                 "n_samples": s.n_samples,
                 "error_rate": round(s.error_rate, 4),
                 "ttft_p50": round(s.ttft_p50, 1),

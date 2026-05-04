@@ -2,12 +2,19 @@
 
 import json
 from pathlib import Path
+from typing import TypedDict
 
 PROMPT_DIR = Path(__file__).parent
 CATEGORIES = ["reasoning", "coding", "summarization", "creative", "qa"]
 
 
-def load_prompts(categories: list[str] | None = None) -> list[dict]:
+class PromptDict(TypedDict):
+    category: str
+    length: str
+    text: str
+
+
+def load_prompts(categories: list[str] | None = None) -> list[PromptDict]:
     """Load prompts for the given categories (default: all).
 
     Returns a list of dicts with keys: category, length, text.

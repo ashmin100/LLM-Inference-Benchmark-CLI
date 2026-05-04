@@ -40,7 +40,7 @@ class TestRunSingle:
         ]
 
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -67,7 +67,7 @@ class TestRunSingle:
             _make_chunk(response="", done=True, eval_count=5, eval_duration=500_000_000),
         ]
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -89,7 +89,7 @@ class TestRunSingle:
             _make_chunk(response="", done=True, eval_count=5, eval_duration=500_000_000),
         ]
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -106,7 +106,7 @@ class TestRunSingle:
 
     def test_exception_returns_error_result(self):
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(side_effect=ConnectionError("ollama not running"))
+        mock_client.generate = AsyncMock(side_effect=ConnectionError("ollama not running"))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -129,7 +129,7 @@ class TestRunSingle:
             _make_chunk(response="", done=True, eval_count=0, eval_duration=0),
         ]
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -148,7 +148,7 @@ class TestRunSingle:
             _make_chunk(response="", done=True, eval_count=5, eval_duration=0),
         ]
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -168,7 +168,7 @@ class TestRunSingle:
             _make_chunk(response="", done=True, eval_count=8, eval_duration=800_000_000),
         ]
         mock_client = MagicMock()
-        mock_client.generate = MagicMock(return_value=_fake_stream(chunks))
+        mock_client.generate = AsyncMock(return_value=_fake_stream(chunks))
 
         result = asyncio.run(_run_single(
             client=mock_client,
@@ -287,3 +287,48 @@ class TestRunBenchmark:
         assert len(calls) == 3
         # shots should be 1-indexed
         assert {shot for _, _, shot in calls} == {1, 2, 3}
+
+    def test_timeout_produces_error_result(self):
+        """A _run_single that exceeds timeout must yield a SingleResult with error, not raise."""
+        async def _slow(_client, **_kw):
+            await asyncio.sleep(10)
+
+        prompts = [{"category": "qa", "length": "short", "text": "Hi."}]
+        with patch("llmbench.runner._run_single", new=_slow):
+            results = asyncio.run(run_benchmark(
+                models=["model-a"],
+                prompts=prompts,
+                thinking_modes=[False],
+                shots=1,
+                timeout=0.05,
+            ))
+
+        assert len(results) == 1
+        assert results[0].error is not None
+        assert "timeout" in results[0].error
+        assert results[0].model == "model-a"
+        assert results[0].tps == 0.0
+
+    def test_round_robin_model_ordering(self):
+        """For each (thinking, prompt, shot) slot, all models run before the next slot."""
+        call_order = []
+
+        async def _recording(_client, model, prompt, thinking, category, length):
+            call_order.append(model)
+            return SingleResult(
+                model=model, thinking=thinking, category=category,
+                length=length, prompt=prompt,
+                ttft_ms=1.0, tps=10.0, total_ms=100.0, output_tokens=5,
+            )
+
+        prompts = [{"category": "qa", "length": "short", "text": "Q."}]
+        with patch("llmbench.runner._run_single", new=_recording):
+            asyncio.run(run_benchmark(
+                models=["model-a", "model-b"],
+                prompts=prompts,
+                thinking_modes=[False],
+                shots=2,
+            ))
+
+        # shot-1: a, b  →  shot-2: a, b  (not a, a, b, b)
+        assert call_order == ["model-a", "model-b", "model-a", "model-b"]

@@ -24,6 +24,7 @@ class AggregatedStats:
     model: str
     thinking: bool
     category: str
+    length: str       # "" when aggregated across multiple lengths
     n_samples: int
     error_rate: float
     ttft_p50: float
@@ -50,10 +51,14 @@ def aggregate(results: list[SingleResult]) -> Optional["AggregatedStats"]:
     def pct(arr, p):
         return float(np.percentile(arr, p)) if arr else 0.0
 
+    lengths = {r.length for r in valid}
+    length = next(iter(lengths)) if len(lengths) == 1 else ""
+
     return AggregatedStats(
         model=valid[0].model,
         thinking=valid[0].thinking,
         category=valid[0].category,
+        length=length,
         n_samples=len(valid),
         error_rate=(len(results) - len(valid)) / len(results),
         ttft_p50=pct(ttfts, 50),

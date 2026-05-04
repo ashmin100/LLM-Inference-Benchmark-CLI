@@ -126,3 +126,19 @@ class TestAggregate:
         assert stats.n_samples == 1
         assert stats.tps_mean == pytest.approx(55.0)
         assert stats.avg_tokens == pytest.approx(30.0)
+
+    def test_uniform_length_is_preserved(self):
+        """When all results share the same length, AggregatedStats.length must match."""
+        results = [make_result(length="long") for _ in range(3)]
+        stats = aggregate(results)
+        assert stats.length == "long"
+
+    def test_mixed_lengths_produce_empty_string(self):
+        """When results span multiple lengths (coarse aggregation), length must be ''."""
+        results = [
+            make_result(length="short"),
+            make_result(length="medium"),
+            make_result(length="long"),
+        ]
+        stats = aggregate(results)
+        assert stats.length == ""

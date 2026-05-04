@@ -35,6 +35,7 @@ def make_stats(**kwargs) -> AggregatedStats:
         model="model-a",
         thinking=False,
         category="qa",
+        length="short",
         n_samples=3,
         error_rate=0.0,
         ttft_p50=120.0,
@@ -114,7 +115,7 @@ class TestSave:
             reader = csv.DictReader(f)
             headers = reader.fieldnames
         expected = [
-            "model", "thinking", "category", "n_samples", "error_rate",
+            "model", "thinking", "category", "length", "n_samples", "error_rate",
             "ttft_p50", "ttft_p95", "ttft_p99",
             "tps_mean", "tps_std",
             "latency_p50", "latency_p95", "latency_p99",

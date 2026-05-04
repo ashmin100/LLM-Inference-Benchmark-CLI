@@ -101,7 +101,7 @@ def compare(
         asyncio.run(run_benchmark(
             models=model_list,
             prompts=[{"category": "qa", "length": "short", "text": "Say hi."}],
-            thinking_modes=[False],
+            thinking_modes=thinking_modes,
             concurrency=1,
             shots=1,
         ))
@@ -131,23 +131,29 @@ def compare(
         progress_cb=on_progress,
     ))
 
-    # ── Aggregate per (model, thinking, category) ─────────────────────────
-    groups: dict[tuple, list] = defaultdict(list)
+    # ── Fine-grained aggregate: (model, thinking, category, length) → CSV ──
+    fine_groups: dict[tuple, list] = defaultdict(list)
     for r in raw:
-        groups[(r.model, r.thinking, r.category)].append(r)
+        fine_groups[(r.model, r.thinking, r.category, r.length)].append(r)
+    fine_stats = [s for g in fine_groups.values() if (s := aggregate(g)) is not None]
+    fine_stats.sort(key=lambda s: (s.category, s.length, s.model, s.thinking))
 
-    stats_list = [s for g in groups.values() if (s := aggregate(g)) is not None]
-    stats_list.sort(key=lambda s: (s.category, s.model, s.thinking))
+    # ── Coarse aggregate: (model, thinking, category) → terminal + chart ──
+    coarse_groups: dict[tuple, list] = defaultdict(list)
+    for r in raw:
+        coarse_groups[(r.model, r.thinking, r.category)].append(r)
+    coarse_stats = [s for g in coarse_groups.values() if (s := aggregate(g)) is not None]
+    coarse_stats.sort(key=lambda s: (s.category, s.model, s.thinking))
 
     # ── Output ────────────────────────────────────────────────────────────
-    print_summary(stats_list)
+    print_summary(coarse_stats)
 
-    json_path, csv_path = save(raw, stats_list, output)
+    json_path, csv_path = save(raw, fine_stats, output)
     console.print(f"  [green]✓[/green] Raw results  → [cyan]{json_path}[/cyan]")
     console.print(f"  [green]✓[/green] Summary CSV  → [cyan]{csv_path}[/cyan]")
 
     if not no_chart:
-        chart_path = save_charts(raw, stats_list, output)
+        chart_path = save_charts(raw, coarse_stats, output)
         console.print(f"  [green]✓[/green] Dashboard   → [cyan]{chart_path}[/cyan]")
 
     console.print()
