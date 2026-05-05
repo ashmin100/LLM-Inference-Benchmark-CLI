@@ -86,6 +86,14 @@ async def run_benchmark(
                     total_ms=timeout * 1000, output_tokens=0,
                     error=f"timeout after {timeout:.0f}s",
                 )
+            except asyncio.CancelledError:
+                result = SingleResult(
+                    model=model, thinking=thinking,
+                    category=prompt_dict["category"], length=prompt_dict["length"],
+                    prompt=prompt_dict["text"], ttft_ms=None, tps=0.0,
+                    total_ms=0.0, output_tokens=0,
+                    error="cancelled",
+                )
             if progress_cb:
                 progress_cb(model, thinking, prompt_dict, shot)
             return result
@@ -100,5 +108,17 @@ async def run_benchmark(
         for model in models
     ]
 
-    results = await asyncio.gather(*tasks)
-    return list(results)
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    # return_exceptions=True means any unhandled exception becomes a result value
+    # (should not happen after bounded()'s catch-all, but guards against edge cases)
+    final = []
+    for r in results:
+        if isinstance(r, SingleResult):
+            final.append(r)
+        else:
+            final.append(SingleResult(
+                model="unknown", thinking=False, category="unknown", length="unknown",
+                prompt="", ttft_ms=None, tps=0.0, total_ms=0.0, output_tokens=0,
+                error=str(r),
+            ))
+    return final
